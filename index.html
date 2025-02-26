@@ -18,14 +18,15 @@
             align-items: center;
             min-height: 100vh;
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
             position: relative;
             width: 100%;
             max-width: 600px;
-            height: 600px;
+            height: auto;
+            aspect-ratio: 1/1.2;
             perspective: 2000px;
             cursor: pointer;
             display: none; /* Ẩn thiệp mời ban đầu */
@@ -305,7 +306,7 @@
 
         /* Phần nhập tên */
         .name-input-container {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -369,52 +370,144 @@
             animation: spin 3s linear infinite;
         }
 
-        /* Responsive design */
-        @media (max-width: 600px) {
-            .container {
-                height: 520px;
+        /* Responsive design cho điện thoại - CHỈNH SỬA CẢI THIỆN */
+        @media (max-width: 767px) {
+            body {
+                padding: 0;
+                align-items: flex-start;
             }
-
+            
+            .container {
+                max-width: 100%;
+                height: 100vh;
+                aspect-ratio: auto;
+                border-radius: 0;
+            }
+            
+            .card {
+                border-radius: 0;
+            }
+            
+            .side {
+                border-radius: 0;
+            }
+            
             .front {
                 padding: 30px 20px;
             }
-
+            
             .front-title {
+                font-size: 24px;
+            }
+            
+            .school-logo {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .card-header {
+                padding: 15px;
+                border-radius: 0;
+            }
+            
+            .header-title {
                 font-size: 22px;
             }
-
-            .school-logo {
-                width: 100px;
-                height: 100px;
-                margin-bottom: 20px;
-            }
-
+            
             .card-body {
-                padding: 20px;
+                padding: 20px 15px;
+                overflow-y: auto;
             }
-
+            
             .card-row {
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
                 gap: 15px;
+                margin-bottom: 15px;
             }
-
-            .event-details {
-                padding: 10px;
+            
+            .graduate-avatar {
+                flex: none;
             }
-
-            .event-highlight {
-                font-size: 18px;
-            }
-
+            
             .graduate-avatar img {
                 width: 100px;
                 height: 100px;
             }
-
+            
+            .invitation-content {
+                width: 100%;
+            }
+            
             .recipient {
+                font-size: 18px;
                 text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .invitation-text {
+                font-size: 16px;
+                text-align: center;
+            }
+            
+            .event-highlight {
+                font-size: 20px;
+            }
+            
+            .event-details {
+                padding: 10px;
+                margin: 15px 0;
+            }
+            
+            .event-detail-row {
+                margin: 8px 0;
+            }
+            
+            .detail-text {
+                font-size: 15px;
+            }
+            
+            .card-footer {
+                padding: 15px;
+            }
+            
+            .footer-text {
+                font-size: 14px;
+            }
+            
+            /* Input form trên mobile */
+            .name-input-container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+        
+        /* Thêm media query cho màn hình siêu nhỏ */
+        @media (max-width: 360px) {
+            .front-title {
+                font-size: 22px;
+            }
+            
+            .school-logo {
+                width: 90px;
+                height: 90px;
+            }
+            
+            .header-title {
+                font-size: 20px;
+            }
+            
+            .event-highlight {
+                font-size: 18px;
+            }
+            
+            .detail-icon {
+                font-size: 16px;
+            }
+            
+            .detail-text {
+                font-size: 14px;
             }
         }
     </style>
@@ -433,7 +526,7 @@
             <!-- Mặt trước của thiệp -->
             <div class="side front">
                 <div class="school-logo" id="logoContainer">
-                    <img src="LOGO_DHXD.png" alt="Logo HUCE" id="schoolLogo">
+                    <img src="./invitation-card/LOGO_DHXD.png" alt="Logo HUCE" id="schoolLogo">
                 </div>
                 <h1 class="front-title">LỄ TỐT NGHIỆP</h1>
                 <p class="front-subtitle">Trường Đại học Xây dựng Hà Nội</p>
@@ -460,12 +553,11 @@
                     <div class="card-body">
                         <div class="card-row">
                             <div class="graduate-avatar">
-                                <img src="download.png" alt="Ảnh tốt nghiệp">
+                                <img src="./invitation-card/download.png" alt="Ảnh tốt nghiệp">
                             </div>
                             <div class="invitation-content">
                                 <div class="recipient"><span id="recipientName">Quý khách</span> thân mến,</div>
-                                <p class="invitation-text">Trân trọng kính mời quý vị đến tham dự buổi lễ. Sự có mặt của bạn là niềm vinh dự của tôi</p>
-                                <p class="invitation-text"></p>
+                                <p class="invitation-text">Trân trọng kính mời quý vị đến tham dự buổi lễ:</p>
                             </div>
                         </div>
                         
@@ -532,6 +624,11 @@
                 nameSubmitted = true;
                 document.getElementById('nameInputContainer').style.display = 'none'; // Ẩn phần nhập tên
                 document.getElementById('container').style.display = 'block'; // Hiển thị thiệp mời
+                
+                // Đối với mobile, thêm class để body không scroll
+                if (window.innerWidth <= 767) {
+                    document.body.style.overflow = 'hidden';
+                }
             } else {
                 alert("Vui lòng nhập tên của bạn!");
             }
@@ -599,6 +696,21 @@
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
+        
+        // Phát hiện kích thước màn hình khi tải trang và khi thay đổi
+        window.addEventListener('load', checkScreenSize);
+        window.addEventListener('resize', checkScreenSize);
+        
+        function checkScreenSize() {
+            const container = document.getElementById('container');
+            if (window.innerWidth <= 767) {
+                // Cho điện thoại
+                container.style.height = window.innerHeight + 'px';
+            } else {
+                // Cho desktop
+                container.style.height = 'auto';
+            }
+        }
     </script>
 </body>
-</html> 
+</html>
