@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp Mời Tốt Nghiệp</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 600px;
+            perspective: 2000px;
+            cursor: pointer;
+            display: none; /* Ẩn thiệp mời ban đầu */
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+        }
+
+        .side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .front {
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: #ffffff;
+            padding: 0;
+        }
+
+        /* Phần front của thiệp */
+        .school-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        .school-logo img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+        .front-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .front-subtitle {
+            font-size: 16px;
+            font-weight: 400;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .open-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .open-button:hover {
+            background: white;
+            color: #1e3c72;
+        }
+
+        /* Loading animation */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+            width: 80%;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 3px;
+        }
+
+        .loading-percentage {
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .loading-container.show {
+            display: flex;
+        }
+
+        /* Phần back của thiệp */
+        .card-back-content {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100%;
+        }
+
+        .card-header {
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title::before, .header-title::after {
+            content: "🎓";
+        }
+
+        .card-body {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-row {
+            display: flex;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .graduate-avatar {
+            flex: 0 0 120px;
+        }
+
+        .graduate-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #1e3c72;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .invitation-content {
+            flex: 1;
+        }
+
+        .recipient {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+
+        .invitation-text {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .event-highlight {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3c72;
+            margin: 15px 0;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .event-details {
+            background: rgba(30, 60, 114, 0.05);
+            border-left: 4px solid #1e3c72;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .event-detail-row {
+            display: flex;
+            margin: 10px 0;
+            align-items: flex-start;
+        }
+
+        .detail-icon {
+            flex: 0 0 24px;
+            color: #1e3c72;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .detail-text {
+            flex: 1;
+            color: #444;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .card-footer {
+            text-align: right;
+            padding: 15px 30px;
+            color: #777;
+            font-style: italic;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #1e3c72;
+        }
+
+        /* Phần nhập tên */
+        .name-input-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .input-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        .name-input-container input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .name-input-container input:focus {
+            border-color: #1e3c72;
+            outline: none;
+        }
+
+        .submit-button {
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+        }
+
+        /* Animations */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 3s linear infinite;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                height: 520px;
+            }
+
+            .front {
+                padding: 30px 20px;
+            }
+
+            .front-title {
+                font-size: 22px;
+            }
+
+            .school-logo {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 20px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .card-row {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .event-details {
+                padding: 10px;
+            }
+
+            .event-highlight {
+                font-size: 18px;
+            }
+
+            .graduate-avatar img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .recipient {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Phần nhập tên -->
+    <div class="name-input-container" id="nameInputContainer">
+        <div class="input-title">Chào mừng bạn!</div>
+        <input type="text" id="nameInput" placeholder="Vui lòng nhập tên của bạn">
+        <button class="submit-button" onclick="submitName()">Xem thiệp mời</button>
+    </div>
+
+    <!-- Thiệp mời -->
+    <div class="container" id="container" onclick="startAnimation()">
+        <div class="card" id="card">
+            <!-- Mặt trước của thiệp -->
+            <div class="side front">
+                <div class="school-logo" id="logoContainer">
+                    <img src="LOGO_DHXD.png" alt="Logo HUCE" id="schoolLogo">
+                </div>
+                <h1 class="front-title">LỄ TỐT NGHIỆP</h1>
+                <p class="front-subtitle">Trường Đại học Xây dựng Hà Nội</p>
+                <div class="open-button" id="openButton">Mở thiệp mời</div>
+                
+                <!-- Loading animation -->
+                <div class="loading-container" id="loadingContainer">
+                    <div class="loading-text">
+                        Đang tải <span id="loadingPercentage">0%</span>
+                    </div>
+                    <div class="loading-bar">
+                        <div class="loading-progress" id="loadingProgress"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mặt sau của thiệp -->
+            <div class="side back">
+                <div class="card-back-content">
+                    <div class="card-header">
+                        <h2 class="header-title">THIỆP MỜI</h2>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="card-row">
+                            <div class="graduate-avatar">
+                                <img src="download.png" alt="Ảnh tốt nghiệp">
+                            </div>
+                            <div class="invitation-content">
+                                <div class="recipient"><span id="recipientName">Quý khách</span> thân mến,</div>
+                                <p class="invitation-text">Trân trọng kính mời quý vị đến tham dự buổi lễ. Sự có mặt của bạn là niềm vinh dự của tôi</p>
+                                <p class="invitation-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="event-highlight">LỄ TỐT NGHIỆP VÀ TRAO BẰNG</div>
+                        
+                        <div class="event-details">
+                            <div class="event-detail-row">
+                                <div class="detail-icon">📅</div>
+                                <div class="detail-text">
+                                    <span class="detail-label">Thời gian:</span>
+                                    15/3/2025
+                                </div>
+                            </div>
+                            
+                            <div class="event-detail-row">
+                                <div class="detail-icon">🕒</div>
+                                <div class="detail-text">
+                                    <span class="detail-label">Giờ:</span>
+                                    8:00 - 11:30
+                                </div>
+                            </div>
+                            
+                            <div class="event-detail-row">
+                                <div class="detail-icon">📍</div>
+                                <div class="detail-text">
+                                    <span class="detail-label">Địa điểm:</span>
+                                    Hội trường G3, 55 Giải Phóng, Hai Bà Trưng, Hà Nội
+                                </div>
+                            </div>
+                            
+                            <div class="event-detail-row">
+                                <div class="detail-icon">👔</div>
+                                <div class="detail-text">
+                                    <span class="detail-label">Trang phục:</span>
+                                    Lịch sự, trang trọng
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <p class="invitation-text" style="text-align: center; margin-top: 15px;">
+                            Rất hân hạnh được đón tiếp quý vị!
+                        </p>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <p class="footer-text">Trân trọng,<br>
+                        <span class="student-name">Phạm Đức Tuấn</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isAnimating = false;
+        let nameSubmitted = false;
+
+        // Hàm xử lý khi người dùng nhập tên
+        function submitName() {
+            const nameInput = document.getElementById('nameInput');
+            const name = nameInput.value.trim();
+            if (name) {
+                document.getElementById('recipientName').textContent = name;
+                nameSubmitted = true;
+                document.getElementById('nameInputContainer').style.display = 'none'; // Ẩn phần nhập tên
+                document.getElementById('container').style.display = 'block'; // Hiển thị thiệp mời
+            } else {
+                alert("Vui lòng nhập tên của bạn!");
+            }
+        }
+
+        // Hàm animation mở thiệp
+        async function startAnimation() {
+            if (!nameSubmitted) {
+                alert("Vui lòng nhập tên trước!");
+                return;
+            }
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const logoContainer = document.getElementById('logoContainer');
+            const openButton = document.getElementById('openButton');
+            const loadingContainer = document.getElementById('loadingContainer');
+            const card = document.getElementById('card');
+
+            // Ẩn nút mở
+            openButton.style.display = 'none';
+            // Hiện loading
+            loadingContainer.classList.add('show');
+            // Thêm hiệu ứng xoay cho logo
+            logoContainer.classList.add('spinning');
+
+            // Animation loading
+            for (let i = 0; i <= 100; i++) {
+                updateLoadingProgress(i);
+                
+                // Tăng tốc độ tải ở giai đoạn giữa
+                if (i < 30) {
+                    await sleep(30);
+                } else if (i < 70) {
+                    await sleep(20);
+                } else if (i < 90) {
+                    await sleep(40);
+                } else {
+                    await sleep(80); // Chậm lại ở cuối
+                }
+            }
+
+            // Hoàn thành loading
+            await sleep(500);
+            
+            // Lật thiệp
+            card.classList.add('flipped');
+
+            // Reset animation sau khi lật xong
+            setTimeout(() => {
+                logoContainer.classList.remove('spinning');
+                loadingContainer.classList.remove('show');
+                updateLoadingProgress(0);
+                isAnimating = false;
+            }, 1500);
+        }
+
+        function updateLoadingProgress(percentage) {
+            const loadingProgress = document.getElementById('loadingProgress');
+            const loadingPercentage = document.getElementById('loadingPercentage');
+            loadingProgress.style.width = `${percentage}%`;
+            loadingPercentage.textContent = `${percentage}%`;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html> 
